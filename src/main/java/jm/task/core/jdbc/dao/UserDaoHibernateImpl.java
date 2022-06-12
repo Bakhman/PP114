@@ -2,7 +2,6 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-import org.hibernate.Session;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,9 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    Util util = new Util();
-    Session session = null;
-    private final Connection conn = util.openConnection();
+    private final Connection conn = Util.openConnection();
     public UserDaoHibernateImpl() {
 
     }
@@ -27,8 +24,14 @@ public class UserDaoHibernateImpl implements UserDao {
 
         try(PreparedStatement pStat = conn.prepareStatement(query)){
             pStat.executeUpdate();
+            conn.commit();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -38,42 +41,51 @@ public class UserDaoHibernateImpl implements UserDao {
 
         try(PreparedStatement pStat = conn.prepareStatement(query)){
             pStat.executeUpdate();
+            conn.commit();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        session = util.getSession();
+        var session = Util.getSession();
         session.beginTransaction();
         User user = new User(name, lastName, age);
         session.save(user);
         session.getTransaction().commit();
+        session.close();
     }
 
     @Override
     public void removeUserById(long id) {
-        session = util.getSession();
+        var session = Util.getSession();
         session.beginTransaction();
         User user = session.get(User.class, id);
         session.delete(user);
         session.getTransaction().commit();
+        session.close();
     }
 
     @Override
     public List<User> getAllUsers() {
-        session = util.getSession();
+        var session = Util.getSession();
         session.beginTransaction();
         List<User> userList = session.createQuery("select i from User i", User.class)
                 .getResultList();
         session.getTransaction().commit();
+        session.close();
         return userList;
     }
 
     @Override
     public void cleanUsersTable() {
-        session = util.getSession();
+        var session = Util.getSession();
         session.beginTransaction();
         List<User> userList = session.createQuery("select i from User i", User.class)
                 .getResultList();
@@ -83,5 +95,6 @@ public class UserDaoHibernateImpl implements UserDao {
 
         }
         session.getTransaction().commit();
+        session.close();
     }
 }
