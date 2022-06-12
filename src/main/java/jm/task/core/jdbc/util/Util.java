@@ -14,7 +14,8 @@ public class Util {
     private static final String URL = "jdbc:mysql://localhost:3306/db113";
     private static final String USERNAME = "bakhman";
     private static final String PASSWORD = "bakhmai";
-    public Session getSession(){
+    
+    public static Session getSession(){
         SessionFactory sessionFactory = new Configuration()
             .addAnnotatedClass(User.class)
             .buildSessionFactory();
@@ -28,7 +29,8 @@ public class Util {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            System.out.println("Connection OK!");
+            connection.setAutoCommit(false);
+            //System.out.println("Connection OK!");
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Connection ERROR!!!");
