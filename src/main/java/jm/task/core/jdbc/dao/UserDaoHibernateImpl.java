@@ -54,7 +54,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        var session = Util.getSession();
+        var session = Util.getSession().getCurrentSession();
         session.beginTransaction();
         User user = new User(name, lastName, age);
         session.save(user);
@@ -64,7 +64,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        var session = Util.getSession();
+        var session = Util.getSession().getCurrentSession();
         session.beginTransaction();
         User user = session.get(User.class, id);
         session.delete(user);
@@ -74,7 +74,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
-        var session = Util.getSession();
+        var session = Util.getSession().getCurrentSession();
         session.beginTransaction();
         List<User> userList = session.createQuery("select i from User i", User.class)
                 .getResultList();
@@ -85,7 +85,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        var session = Util.getSession();
+        var session = Util.getSession().getCurrentSession();
         session.beginTransaction();
         List<User> userList = session.createQuery("select i from User i", User.class)
                 .getResultList();
